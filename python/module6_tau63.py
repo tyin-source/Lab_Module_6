@@ -145,7 +145,8 @@ def main():
     ax.axhline(T_f, color="gray", ls="--", lw=1, label=f"T_final = {T_f:.2f} °C")
     ax.axhline(T63, color="tab:red", ls="-", lw=1, label=f"T_63 = {T63:.2f} °C")
     ax.axvline(tau, color="tab:red", ls="-", lw=1)
-    ax.annotate(f"τ ≈ {tau:.0f} ± {err:.0f} s", (tau, T63), xytext=(8, -14),
+    err_txt = f"{err:.1f}" if err < 1 else f"{err:.0f}"
+    ax.annotate(f"τ ≈ {tau:.0f} ± {err_txt} s", (tau, T63), xytext=(8, -14),
                 textcoords="offset points", color="tab:red")
     ax.set_ylabel("Temperature (°C)")
     ax.set_title(f"63 % method, step {u_before:+.0f} → {u_after:+.0f} PWM\n{args.trace.name}",
@@ -153,6 +154,10 @@ def main():
     ax.legend(fontsize=8)
     ax.grid(alpha=0.3)
     axp.step(rel, u, "k", where="post", lw=1)
+    axp.set_xlim(-BASELINE_S, held_s + 10)            # this step only
+    shown = (rel >= -BASELINE_S) & (rel <= held_s + 10)
+    pad = 0.05 * (T[shown].max() - T[shown].min()) + 0.05
+    ax.set_ylim(T[shown].min() - pad, T[shown].max() + pad)
     axp.set_ylabel("Applied signed PWM")
     axp.set_xlabel("Time since the step (s)")
     axp.grid(alpha=0.3)
