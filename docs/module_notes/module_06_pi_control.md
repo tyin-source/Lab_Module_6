@@ -24,9 +24,9 @@ are copied unchanged from the [Module 5 repository](https://github.com/tyin-sour
 At full PWM the Joule heat delivered to the block face is
 $\dot Q_J = V_{\mathrm{TEC}}^2/(2R_M) = 10.95^2/(2 \times 1.50) = 40.0$ W. The
 heating/cooling asymmetry $r = (\dot Q_P + \dot Q_J)/(\dot Q_P - \dot Q_J)$ then gives
-the Peltier term $\dot Q_P = \dot Q_J\,(r+1)/(r-1) = 83.9$ W, so the net cooling power at
+the Peltier term $\dot Q_P = \dot Q_J\thinspace (r+1)/(r-1) = 83.9$ W, so the net cooling power at
 PWM 255 is $\dot Q_P - \dot Q_J = 43.9$ W, i.e. $P_{u,c} = 43.9/255 = 0.172$ W/PWM and
-$P_{u,h} = r\,P_{u,c} = 0.486$ W/PWM. Then $H = P_{u,c}/\chi_c = 1.00$ W/K and
+$P_{u,h} = r\thinspace P_{u,c} = 0.486$ W/PWM. Then $H = P_{u,c}/\chi_c = 1.00$ W/K and
 $C = H\tau = 70$ J/K. That is the heat capacity of about 78 g of aluminium
 ($c_p \approx 900$ J/(kg K)), a plausible size for the block plus the TEC ceramic.
 These three numbers rest on the model's assumptions (data-sheet $R_M$ at 27 °C, no
@@ -240,13 +240,16 @@ With our measured values (Module 4 susceptibilities; $\tau$ from Part 3), using
 the susceptibility for the active direction:
 
 $$
-\frac{dT}{dt} =
-\begin{cases}
-\dfrac{T_{\mathrm{amb}} + (0.485\ ^\circ\mathrm{C/PWM})\,u - T}{\tau}, & u > 0 \text{ (heating)}\\[2ex]
-\dfrac{T_{\mathrm{amb}} + (0.172\ ^\circ\mathrm{C/PWM})\,u - T}{\tau}, & u < 0 \text{ (cooling)}
-\end{cases}
-\qquad \tau \approx 70\ \mathrm{s}
+\text{heating } (u > 0):\qquad
+\frac{dT}{dt} = \frac{T_{\mathrm{amb}} + (0.485\ ^\circ\mathrm{C/PWM})\ u - T}{\tau}
 $$
+
+$$
+\text{cooling } (u < 0):\qquad
+\frac{dT}{dt} = \frac{T_{\mathrm{amb}} + (0.172\ ^\circ\mathrm{C/PWM})\ u - T}{\tau}
+$$
+
+with $\tau \approx 70$ s in both directions.
 
 Once $T_{\mathrm{amb}}$ and the command $u$ are specified, the model has no free
 parameters, so its prediction can be compared directly with a measured trace
@@ -283,9 +286,9 @@ $$
 ## Part 3: Estimate $\tau$
 
 **Method (63 %).** For a step in the applied PWM,
-$T_{63} = T_{\mathrm{initial}} + 0.63\,(T_{\mathrm{final}} - T_{\mathrm{initial}})$, and
+$T_{63} = T_{\mathrm{initial}} + 0.63\thinspace (T_{\mathrm{final}} - T_{\mathrm{initial}})$, and
 $\tau$ is the time from the step until the temperature first reaches $T_{63}$.
-`python/module6_tau63.py` does this for a trace. $T_{\mathrm{initial}}$ is the mean of
+`archive/python/module6_tau63.py` does this for a trace. $T_{\mathrm{initial}}$ is the mean of
 the 30 s before the step and $T_{\mathrm{final}}$ is the mean of the last 60 s. The
 crossing is taken on a 5-reading centred running mean, so that a single noisy reading
 does not cross early. The uncertainty is the noise and the $T_{\mathrm{final}}$
@@ -346,8 +349,8 @@ fixes only the ratio $C/H$, not $C$ and $H$ separately.
 Reproduce (from the repository root):
 
 ```bash
-python python/module6_tau63.py data/module_05/p_20261014-110522_Tset18.0_Kp0.5.csv --t-final 22.333 --t-final-err 0.05
-python python/module6_tau63.py data/module_05/p_20261017-003102_Tset30.0_Kp0.5.csv --step 2 --moving-start
+python archive/python/module6_tau63.py data/module_05/p_20261014-110522_Tset18.0_Kp0.5.csv --t-final 22.333 --t-final-err 0.05
+python archive/python/module6_tau63.py data/module_05/p_20261017-003102_Tset30.0_Kp0.5.csv --step 2 --moving-start
 ```
 
 The closed-loop $t_{63}$ values are the `tau63_s` column of
@@ -360,8 +363,8 @@ $\tau_{\mathrm{cl}} = \tau/(1+L)$. The same session supplies the measured open-l
 heating and cooling traces that Part 4 compares with the simulation, and the on-state
 TEC voltage.
 
-**Tools.** Use the Module 4 sketch `arduino/module4_tec_control/` with
-`python/module4_control_gui.py`. The Module 5 sketch cannot be used here: it stops the
+**Tools.** Use the Module 4 sketch `archive/arduino/module4_tec_control/` with
+`archive/python/module4_control_gui.py`. The Module 5 sketch cannot be used here: it stops the
 TEC when no command arrives for 3 s, and this GUI sends a command only when the PWM or
 direction changes. The GUI logs every reading (a 1,000-sample average) to
 `data/module_06/openloop_<date>_<time>.csv`. (The 17 Oct session was run with the
@@ -370,12 +373,12 @@ Module 5 repository's copy of the GUI, which names the file
 
 **Before the steps.**
 
-1. Upload `arduino/module4_tec_control/module4_tec_control.ino`. The start-up banner
+1. Upload `archive/arduino/module4_tec_control/module4_tec_control.ino`. The start-up banner
    must show the 60 °C software limit.
-2. Set `SERIAL_PORT` at the top of `python/module4_control_gui.py` and close the
+2. Set `SERIAL_PORT` at the top of `archive/python/module4_control_gui.py` and close the
    Arduino Serial Monitor.
 3. Leave the block at PWM 0 for at least 15 min after any heating run.
-4. From the repository root, run `python python/module4_control_gui.py`. Logging
+4. From the repository root, run `python archive/python/module4_control_gui.py`. Logging
    starts at once. Record at least 2 min at PWM 0; the temperature should drift by
    less than about 0.05 °C/min. Note the room temperature and the clock time.
 
@@ -404,10 +407,10 @@ display freezes, or a safety shutdown is reported.
 **Analysis.**
 
 ```bash
-python python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 1   # 0 -> +25
-python python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 3   # 0 -> -25
-python python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 2   # +25 -> 0
-python python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 4   # -25 -> 0
+python archive/python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 1   # 0 -> +25
+python archive/python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 3   # 0 -> -25
+python archive/python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 2   # +25 -> 0
+python archive/python/module6_tau63.py data/module_06/module4_run_20261017_164351.csv --step 4   # -25 -> 0
 ```
 
 Steps 1 and 3 start from a settled block and are the main results. Steps 2 and 4 are
@@ -489,7 +492,7 @@ $u$ = +25 and −25 PWM, matching the Part 3 steps, and $\Delta t$ = 0.01 s.
 $19.84 + 0.485 \times 25 = 31.96$ °C for heating and
 $19.93 + 0.172 \times (-25) = 15.63$ °C for cooling.
 
-`python/module6_part4_open_loop.py` integrates the measured-parameter update
+`archive/python/module6_part4_open_loop.py` integrates the measured-parameter update
 $T_{n+1} = T_n + (\Delta t/\tau)(T_{\mathrm{amb}} + \chi u_n - T_n)$, the same
 equation the course simulation uses in this mode, and plots it over the measured
 traces. No parameter is fitted to these traces.
@@ -552,7 +555,7 @@ The same $|u|$ moves the temperature by +11.5 °C when heating but only −5.75 
 cooling, because the TEC delivers more heat to the block than it removes. The Joule
 heat $I^2R$ always goes partly into the block face. When heating it adds to the
 Peltier heat, and when cooling it opposes the Peltier cooling, so
-$P_{u,h} = P_{u,c}\,(\dot Q_P + \dot Q_J)/(\dot Q_P - \dot Q_J)$. Since
+$P_{u,h} = P_{u,c}\thinspace (\dot Q_P + \dot Q_J)/(\dot Q_P - \dot Q_J)$. Since
 $\chi = P_u/H$ with the same $H$ in both directions, $\chi_h/\chi_c = r$ = 2 here
 (2.82 for our apparatus).
 
@@ -585,10 +588,10 @@ $C$ = 130.9 J/K. In `direct constants` mode $C$ was doubled to 261.9 J/K, with $
 ![Simulation with doubled C, u = +25 PWM](../figures/module_06/part4_B_double_C.png)
 
 *Why thermal mass changes the transient but not the steady state.* At steady state
-$dT/dt = 0$, so the storage term $C\,dT/dt$ vanishes and the balance
+$dT/dt = 0$, so the storage term $C\thinspace dT/dt$ vanishes and the balance
 $P_u u = H(T_{\mathrm{ss}} - T_{\mathrm{amb}})$ is between the TEC power and the
 loss to the room only. $C$ sets how much energy must be stored to change the
-temperature, $\Delta U = C\,\Delta T$. With the same net power available, twice the
+temperature, $\Delta U = C\thinspace \Delta T$. With the same net power available, twice the
 capacitance takes twice as long to reach the same temperature, so $\tau = C/H$ doubles
 and the final temperature is unchanged. The simulation was returned to `measured`
 afterwards.
@@ -672,7 +675,7 @@ Substituting the P law $u = K_p(T_{\mathrm{set}} - T)$ into the one-lump energy
 balance gives
 
 $$
-C\frac{dT}{dt} = P_uK_pT_{\mathrm{set}} + HT_{\mathrm{amb}} - (H + P_uK_p)\,T .
+C\frac{dT}{dt} = P_uK_pT_{\mathrm{set}} + HT_{\mathrm{amb}} - (H + P_uK_p)\thinspace T .
 $$
 
 Its steady state is
@@ -681,11 +684,11 @@ the droop result of Part 1. With the displacement $\theta = T - T_{\mathrm{ss}}$
 constant terms cancel:
 
 $$
-C\frac{d\theta}{dt} = -(H + P_uK_p)\,\theta
+C\frac{d\theta}{dt} = -(H + P_uK_p)\thinspace \theta
 \quad\Longrightarrow\quad
-\frac{d\theta}{\theta} = -\frac{H + P_uK_p}{C}\,dt
+\frac{d\theta}{\theta} = -\frac{H + P_uK_p}{C}\thinspace dt
 \quad\Longrightarrow\quad
-\ln\frac{\theta(t)}{\theta(0)} = -\frac{H + P_uK_p}{C}\,t .
+\ln\frac{\theta(t)}{\theta(0)} = -\frac{H + P_uK_p}{C}\thinspace t .
 $$
 
 So
@@ -725,7 +728,7 @@ balance and defining the deviation from steady state $\theta(t) = T(t) - T_{\mat
 we obtain the homogeneous differential equation
 
 $$
-C\frac{d\theta}{dt} = -(H + P_uK_p)\,\theta .
+C\frac{d\theta}{dt} = -(H + P_uK_p)\thinspace \theta .
 $$
 
 Trying an exponential solution $\theta(t) = \theta_0e^{\lambda t}$ yields the single
@@ -751,7 +754,7 @@ Run: Module 5, 14 Oct 2026, $K_p$ = 32 PWM/°C, $T_{\mathrm{set}}$ = 30 °C
 ([`p_20261014-120316_Tset30.0_Kp32.csv`](../../data/module_05/p_20261014-120316_Tset30.0_Kp32.csv)).
 The red curve is the one-lump prediction with nothing fitted: $\chi_h$ = 0.485
 °C/PWM, $\tau$ = 70 s, the baseline $T_{\mathrm{amb}}$ = 22.03 °C, $T(0)$ = 21.95 °C,
-and the PWM clamped at 255. `python/module6_part5_highgain.py` makes the figure.
+and the PWM clamped at 255. `archive/python/module6_part5_highgain.py` makes the figure.
 
 ![Kp = 32: measured transient vs one-lump P model](../figures/module_06/part5_highgain_Kp32_vs_one_lump.png)
 
@@ -865,7 +868,7 @@ When $e = 0$, $u_P = 0$, so the entire required command must be supplied by $u_I
 The integral state stops growing ($dq/dt = e = 0$) but retains its accumulated value,
 
 $$
-q_{\mathrm{ss}} = \frac{u_{\mathrm{ss}}}{K_i} \approx \frac{20.95}{0.08} \approx 262\ ^\circ\mathrm{C\,s}.
+q_{\mathrm{ss}} = \frac{u_{\mathrm{ss}}}{K_i} \approx \frac{20.95}{0.08} \approx 262\ ^\circ\mathrm{C\thinspace s}.
 $$
 
 The integral term acts as the controller's "memory" of past errors, holding the
@@ -893,7 +896,7 @@ $T_{\mathrm{amb}} = T_0$ = 19.84 °C, $T_{\mathrm{set}}$ = 30 °C, $K_p$ = 8 PWM
 $u_{\max}$ = 255, anti-windup on, $\Delta t$ = 0.05 s). Each run started from
 **Reset experiment** with only $K_i$ changed. $\zeta$ and $T_{\max}$ were read from the
 simulation. The peak time, settling time, and smallest command were computed by
-`python/module6_part6_ki_sweep.py`, which integrates the same equations and reproduces
+`archive/python/module6_part6_ki_sweep.py`, which integrates the same equations and reproduces
 every $T_{\max}$ to 0.01 °C. The settling time is the time after which $T$ stays within
 ±0.2 °C (2 % of the 10.16 °C step) of the setpoint.
 
@@ -930,9 +933,9 @@ $\Delta T = T - T_{\mathrm{amb}}$ and $T_0 = T_{\mathrm{amb}}$, the closed loop 
 
 $$
 \frac{\Delta T(s)}{\Delta T_{\mathrm{set}}(s)}
-= \frac{\chi_h\,(K_p s + K_i)}{\tau s^2 + (1 + \chi_h K_p)\,s + \chi_h K_i},
+= \frac{\chi_h\thinspace (K_p s + K_i)}{\tau s^2 + (1 + \chi_h K_p)\thinspace s + \chi_h K_i},
 \qquad
-\zeta = \frac{1 + \chi_h K_p}{2\sqrt{\tau\,\chi_h K_i}},
+\zeta = \frac{1 + \chi_h K_p}{2\sqrt{\tau\thinspace \chi_h K_i}},
 $$
 
 and all three coefficients of the denominator are positive, so both poles have negative
@@ -953,7 +956,7 @@ under $e(t)$ must equal $q_{\mathrm{ss}} = u_{\mathrm{ss}}/K_i$. If the rise to 
 setpoint already accumulates more area than that, the excess can only be removed by
 negative error, i.e. by an overshoot:
 
-| $K_i$ | $\int e\,dt$ before $T$ first reaches 30 °C (°C s) | $q_{\mathrm{ss}} = 20.95/K_i$ (°C s) |
+| $K_i$ | $\int e\thinspace dt$ before $T$ first reaches 30 °C (°C s) | $q_{\mathrm{ss}} = 20.95/K_i$ (°C s) |
 | ---: | ---: | ---: |
 | 0.08 | never reaches it (261 by 600 s) | 262 |
 | 0.18 | 150 | 116 |
@@ -976,7 +979,7 @@ and 0.70 all settle in 100–115 s.
 
 $$
 K_{i,\zeta=1} = \frac{(1 + \chi_hK_p)^2}{4\tau\chi_h} = \frac{4.88^2}{4 \times 70 \times 0.485}
-\approx 0.175\ \mathrm{PWM/(^\circ C\,s)}.
+\approx 0.175\ \mathrm{PWM/(^\circ C\thinspace s)}.
 $$
 
 $K_i$ = 0.18 ($\zeta$ = 0.987) is within 1 % of it, and the model at 0.175 overshoots by
@@ -991,11 +994,11 @@ relative to the slow pole:
 Write $z = K_i/K_p$. At $s = -z$ the denominator of the transfer function above
 is $\tau z^2 - (1 + \chi_hK_p)z + \chi_hK_pz = z(\tau z - 1)$. This is negative for
 $z < 1/\tau$, so $-z$ then lies between the two real poles. The step response is
-then $1 - a\,e^{-p_1t} - b\,e^{-p_2t}$ with $a, b > 0$, which rises monotonically. The
+then $1 - a\thinspace e^{-p_1t} - b\thinspace e^{-p_2t}$ with $a, b > 0$, which rises monotonically. The
 two coincide when
 
 $$
-K_i = \frac{K_p}{\tau} = \frac{8}{70} \approx 0.114\ \mathrm{PWM/(^\circ C\,s)}
+K_i = \frac{K_p}{\tau} = \frac{8}{70} \approx 0.114\ \mathrm{PWM/(^\circ C\thinspace s)}
 \qquad (\zeta \approx 1.24).
 $$
 
@@ -1071,7 +1074,7 @@ but with $u_{\max}$ = 30 PWM. The initial request $K_pe = 8 \times 10.16 = 81$ P
 then far beyond the limit, while the steady command $u_{\mathrm{ss}}$ = 20.95 PWM is
 still within it, so the setpoint can be reached. The run was made with
 **Prevent integral windup** checked and unchecked, each from **Reset experiment**.
-`python/module6_part6_windup.py` reproduces both runs ($T_{\max}$ to 0.01 °C) and gives
+`archive/python/module6_part6_windup.py` reproduces both runs ($T_{\max}$ to 0.01 °C) and gives
 the times.
 
 | | Anti-windup on | Anti-windup off |
@@ -1112,3 +1115,322 @@ The PWM clamp protects the actuator, anti-windup keeps the controller's memory f
 growing while the clamp is active, and **Zero integral** clears that memory
 deliberately before a new comparison. The Part 7 hardware GUI uses the same
 conditional-integration rule.
+
+## Part 7: PI control on the hardware
+
+### Program
+
+The controller starts from the Module 5 P controller. The three Module 5 files were
+first committed unchanged under their new names, so the next commit shows exactly what
+Part 7 changes.
+
+| File | Role |
+| --- | --- |
+| `arduino/module6_pi_control/module6_pi_control.ino` | The Module 5 sketch; only the header and the start-up banner changed. The 60 °C temperature shutdown, the 0–255 clamp, and the 3 s command timeout are unchanged. Upload it before any P or PI run (the archived Module 4 sketch has no timeout). |
+| `python/module6_pi_control_gui.py` | P/PI GUI. $K_i$ = 0 gives the Module 5 P controller. |
+| `python/module6_common.py` | $\chi_h$ and $\chi_c$ from the Module 4 data, $\tau$ = 70 s, the one-lump PI $\zeta$, and a run-file reader |
+| `python/module6_pi_gui_selftest.py` | Runs the GUI against a simulated one-lump Arduino, without hardware |
+
+**The lines that calculate $e$, $q$, $u_P$, $u_I$, and the clamped command** (from
+`pi_control()`, called once for every accepted temperature):
+
+```python
+e = t_set - temperature                      # error e_n = Tset - T_n           [C]
+q_next = q + e * dt                          # q_{n+1} = q_n + e_n dt           [C s]
+u_next = kp * e + ki * q_next
+held = anti_windup and ((u_next > u_max and e > 0) or (u_next < -u_max and e < 0))
+if held:
+    q_next = q                               # conditional integration: keep q_n
+u_p = kp * e                                 # u_P = Kp e_n                     [PWM]
+u_i = ki * q_next                            # u_I = Ki q_{n+1}                 [PWM]
+u_req = u_p + u_i                            # requested command                [PWM]
+u_applied = max(-u_max, min(u_max, u_req))   # clamped (applied) command        [PWM]
+```
+
+The sign of `u_applied` selects HEAT or COOL and its rounded magnitude is sent as the
+PWM. Other changes from Module 5:
+
+* $\Delta t$ is the actual elapsed time between accepted readings, from the Arduino
+  time stamps. If the Arduino restarts (its clock goes back), $\Delta t$ = 0 for that
+  step, the 30 s baseline starts again so a run file never mixes the two clocks, and
+  the plots continue to the right instead of drawing over the earlier readings.
+* **Zero integral** sets $q = 0$. It works only while control is off, i.e. with the
+  controller's PWM already at 0, and a run cannot start until $q = 0$.
+* Two setpoints, $T_{\mathrm{low}}$ and $T_{\mathrm{high}}$, are fixed for a run. The
+  active one can be switched during the run, so one run file holds both the upward
+  and the downward step.
+* $K_p$, $K_i$, the PWM limit $u_{\max}$ ($\le$ 255), and the anti-windup setting are
+  fixed for a run.
+* The display and each run file include $\Delta t$, $e$, $q$, $u_P$, $u_I$, the
+  requested and applied commands, the integer PWM sent, and flags for saturation and
+  a held integral. Run files are
+  `data/module_06/<p|pi>_<date>-<time>_Kp<..>_Ki<..>_T<low>-<high>.csv`, and each
+  starts with 30 s of readings from before control was switched on.
+* The plots keep the whole session instead of a 300 s rolling window. The mouse
+  wheel zooms (over an axis, that axis only), dragging pans, and **Show all** returns
+  to the full auto-scaled view. The three plots share the time axis.
+
+**Self-test without hardware.** `python python/module6_pi_gui_selftest.py` drives the
+GUI with a simulated Arduino (one-lump block, $\tau$ = 70 s, measured $\chi$, one line
+per second, the last command applied), using the windup case of Part 6:
+
+| Group G case ($K_p$ = 8, $K_i$ = 0.36, $u_{\max}$ = 30) | GUI + simulated Arduino | Part 6 model |
+| --- | ---: | ---: |
+| Anti-windup on, $T_{\max}$ | 30.18 °C | 30.20 °C |
+| Anti-windup off, $T_{\max}$ | 33.29 °C | 33.27 °C |
+| Largest $u_I$ without anti-windup | 125.3 PWM | 123.5 PWM |
+
+The small differences come from the 1 s update, the integer PWM, and the one-line delay
+before the Arduino applies a command. A safety-shutdown line stops control and sends
+PWM 0.
+
+### Procedure
+
+1. Upload `module6_pi_control.ino` and check the banner: "Module 6 serial-command TEC
+   control (P/PI control runs in Python)" and "command timeout (s): 3.0".
+2. Set `SERIAL_PORT` at the top of the GUI and run
+   `python python/module6_pi_control_gui.py` from the repository root.
+3. Show the instructor `pi_control()` (above) before applying power.
+4. Choose $T_{\mathrm{low}}$, $T_{\mathrm{high}}$, and $u_{\max}$ once; they are the same
+   for all six runs. Leave anti-windup on.
+5. For each run: **Zero integral**, select the starting setpoint, enter $K_p$ and
+   $K_i$, then **Start control**. When $T$ has settled, switch to the other setpoint;
+   when it has settled again, switch back. **Stop control** sets PWM to 0. Do not
+   change gains or reset the integral with the controller running.
+6. Stop at once if the temperature moves the wrong way, the display freezes, the
+   command stays saturated unexpectedly, or the oscillation grows.
+
+### Experimental Goldilocks runs
+
+**Conditions for all six runs.** One apparatus; $T_{\mathrm{low}}$ = 30 °C and
+$T_{\mathrm{high}}$ = 35 °C (the Module 5 setpoint and the top of the handout's range);
+$u_{\max}$ = 255; anti-windup on; one reading every 1.075 s on average. Each run starts
+under control at 30 °C from room temperature, steps up to 35 °C when settled, and steps
+back down to 30 °C. The upward and downward 5 °C steps are the matched comparison; the
+first approach from room temperature is not. The temperature shutdown (60 °C) and the
+3 s command timeout were active. `python/module6_part7_runs.py` splits a run at the
+setpoint switches and compares each step with the one-lump model ($\tau$ = 70 s,
+$\chi_h$ and $\chi_c$ from Module 4, $T_{\mathrm{amb}}$ = the baseline mean before
+control started), driven by the GUI's own `pi_control()` with the same integer PWM,
+measured $\Delta t$, and one-reading command delay. Nothing is fitted. $T_{\mathrm{ss}}$
+is the mean of the last 60 s of a step, and the settling time is the time after the
+step until $T$ stays within ±0.1 °C of $T_{\mathrm{ss}}$, and $e$(60 s) is the error
+60 s after the step. The files, including the debugging runs that are not used, are
+listed in `data/module_06/README.md`.
+
+| Run | Controller | $K_p$ | $K_i$ | Up 30 → 35 °C: $e_{\mathrm{ss}}$, overshoot, settling | Down 35 → 30 °C: $e_{\mathrm{ss}}$, overshoot, settling |
+| ---: | --- | ---: | ---: | --- | --- |
+| 1 | P | 2 | 0 | +7.24 °C, none, 106 s | +4.71 °C, none, 176 s |
+| 2 | P | 8 | 0 | +2.89 °C, none, 67 s | +1.84 °C, none, 70 s |
+| 3 | P | 32 | 0 | +0.85 °C, 0.97 °C, 28 s | +0.54 °C, 0.09 °C, 32 s |
+| 4 | PI | 6 | 0.04 | −0.02 °C, 0.08 °C, 530 s | 0.00 °C, 0.02 °C, 418 s |
+| 5 | PI | 6 | 0.08 | 0.00 °C, 0.01 °C, 119 s | 0.00 °C, 0.02 °C, 116 s |
+| 6 | PI | 6 | 0.5 | 0.00 °C, 1.48 °C, 122 s | 0.00 °C, 1.81 °C, 130 s |
+
+#### Run 1: P, $K_p$ = 2
+
+[`p_20261018-045404_Kp2_Ki0_T30-35.csv`](../../data/module_06/p_20261018-045404_Kp2_Ki0_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 20.98 °C.
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e_{\mathrm{ss}}$ meas. / model (°C) | Overshoot (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 25.26 / 25.34 | +4.74 / +4.66 | 0.01 | 125 / 109 | +9 … +18 |
+| up | 35 | 27.76 / 27.77 | +7.24 / +7.23 | 0.02 | 106 / 87 | +14 … +20 |
+| down | 30 | 25.29 / 25.35 | +4.71 / +4.65 | 0.06 | 176 / 162 | +4 … +10 |
+
+![Run 1: P control, K_p = 2](../figures/module_06/part7_run1.png)
+
+* **Large droop, as designed.** With $L = K_p\chi_h$ = 0.97 the controller removes only
+  half of the difference between the room and the setpoint. The measured steady error
+  agrees with the model to within 0.08 °C at all three levels. The algebraic droop
+  formula with a continuous command gives 25.42 and 27.88 °C; in the model the integer
+  PWM (9 instead of 9.3 at 30 °C) lowers the level by about 0.1 °C. In the measurement
+  the PWM alternates between the two nearest integers (9/10 and 14/15), because the
+  requested command sits close to a half-integer.
+* **No overshoot.** The largest excursion past $T_{\mathrm{ss}}$ is 0.06 °C, the size of
+  the noise and of one PWM count.
+* **Speed.** Both steps settle on the closed-loop time scale
+  $\tau/(1+L)$ = 35.5 s. The measurement reaches the ±0.1 °C band 15–20 s later than the
+  model, the same slow final approach seen in the open-loop steps of Part 3.
+* **Down step without cooling.** The command stays positive (+4 to +10 PWM): with
+  $K_p$ = 2 the error never becomes negative, so the block cools by reduced heating
+  only, with the heating susceptibility. Higher gains should briefly command cooling.
+* **Room temperature.** The baseline was 20.25 °C in the first debugging run and
+  20.98 °C in this one, an hour later; each comparison uses its own baseline.
+
+#### Run 2: P, $K_p$ = 8
+
+[`p_20261018-054301_Kp8_Ki0_T30-35.csv`](../../data/module_06/p_20261018-054301_Kp8_Ki0_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 21.23 °C. (A first Run 2 used 28 and 32 °C by mistake and
+was repeated at 30 and 35 °C; it is kept as a debugging run.)
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e_{\mathrm{ss}}$ meas. / model (°C) | Overshoot (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 28.18 / 28.19 | +1.82 / +1.81 | 0.02 | 104 / 58 | +14 … +70 |
+| up | 35 | 32.11 / 32.19 | +2.89 / +2.81 | 0.05 | 67 / 54 | +23 … +55 |
+| down | 30 | 28.16 / 28.19 | +1.84 / +1.81 | 0.05 | 70 / 57 | −17 … +15 |
+
+![Run 2: P control, K_p = 8](../figures/module_06/part7_run2.png)
+
+* **Droop scales as $1/(1+L)$.** With $L$ = 3.88 instead of 0.97 the steady error is
+  2.5 times smaller than in Run 1 (2.89 vs 7.24 °C on the upward step), as
+  $(1 + 3.88)/(1 + 0.97)$ = 2.48 predicts. The measured error agrees with the model to
+  within 0.08 °C.
+* **Faster, still no overshoot.** $\tau/(1+L)$ = 14.3 s instead of 35.5 s. The
+  upward and downward steps settle in 67 and 70 s (Run 1: 106 and 176 s), and nothing
+  goes past $T_{\mathrm{ss}}$ by more than 0.05 °C. This is the best P compromise:
+  a higher gain would shrink the droop further, but Run 3 is there to show what the
+  thermal lag does to it.
+* **Thermal lag is visible.** At each step the measured temperature starts to move
+  about 1–2 s after the model does, and it reaches the ±0.1 °C band 13 s later. This
+  is the delay that the one-lump model leaves out (Part 5); at $K_p$ = 8 it costs a
+  few seconds but does not cause overshoot.
+* **The downward step uses cooling.** The error becomes negative right after the step
+  ($e$ ≈ −2.2 °C), so the controller commands up to −17 PWM (COOL) for about 10 s
+  before it returns to heating at a lower level.
+
+#### Run 3: P, $K_p$ = 32
+
+[`p_20261018-062146_Kp32_Ki0_T30-35.csv`](../../data/module_06/p_20261018-062146_Kp32_Ki0_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 21.05 °C.
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e_{\mathrm{ss}}$ meas. / model (°C) | Overshoot meas. / model (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 29.38 / 29.45 | +0.62 / +0.55 | 1.74 / 0 | 38 / 16 | −36 … +255 |
+| up | 35 | 34.15 / 34.14 | +0.85 / +0.86 | 0.97 / 0 | 28 / 14 | −4 … +178 |
+| down | 30 | 29.46 / 29.45 | +0.54 / +0.55 | 0.09 / 0 | 32 / 22 | −133 … +20 |
+
+![Run 3: P control, K_p = 32](../figures/module_06/part7_run3.png)
+
+* **The droop still follows the model.** With $L$ = 15.5 the steady error is
+  0.54–0.85 °C, within 0.07 °C of the model, 3.4 times smaller than in Run 2
+  ($(1 + 15.5)/(1 + 3.88)$ = 3.4).
+* **The overshoot does not.** The one-lump P model cannot overshoot (Part 5), and it
+  does not here. The measurement overshoots by 0.97 °C on the upward step (peak
+  35.08 °C 11.6 s after the step, then 33.75 °C at 21.3 s and 34.19 °C at 32 s) and by
+  1.74 °C on the approach from room temperature, where it passes the setpoint
+  (31.05 °C at 11.8 s). The ringing has a period of about 20–24 s and dies out within
+  one cycle. This is the behaviour that needs the delayed state of the two-lump model:
+  the temperature the controller sees is 1–2 s behind the heat it has already put
+  into the TEC side (Runs 2 and 3), and at $L$ = 15.5 that lag is enough to drive the
+  command past its steady value. The command swings to −36 PWM (cooling) after the
+  first approach, and the first three readings are at the 255 limit.
+* **Upward and downward steps differ.** The downward step undershoots by only 0.09 °C.
+  Its large command is cooling, where the susceptibility is smaller ($K_p\chi_c$ = 5.5
+  instead of $K_p\chi_h$ = 15.5), so the effective gain during the transient is lower.
+* **Speed.** The steps settle in 28–38 s, about twice the model's 14–22 s, because of
+  the ringing.
+
+#### Run 4: PI, $K_p$ = 6, $K_i$ = 0.04
+
+[`pi_20261018-063831_Kp6_Ki0.04_T30-35.csv`](../../data/module_06/pi_20261018-063831_Kp6_Ki0.04_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 21.06 °C. One-lump damping ratio $\zeta_h$ = 1.68
+(heating), $\zeta_c$ = 1.46 (cooling); $K_i < K_p/\tau$ = 0.086, so no one-lump
+overshoot is expected.
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e$(60 s) meas. / model (°C) | Overshoot (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 29.95 / 29.91 | +1.69 / +1.57 | 0.02 | 425 / 453 | +18 … +54 |
+| up | 35 | 35.02 / 34.99 | +0.95 / +0.92 | 0.08 | 530 / 381 | +28 … +49 |
+| down | 30 | 30.00 / 30.00 | −0.89 / −0.86 | 0.02 | 418 / 389 | −1 … +19 |
+
+![Run 4: PI control, K_p = 6, K_i = 0.04](../figures/module_06/part7_run4.png)
+
+* **The integral removes the droop, slowly.** With $K_i$ = 0 this $K_p$ would leave
+  2.3 °C (30 °C) and 3.6 °C (35 °C) of error. Here the proportional part brings $T$
+  within about 0.9 °C in a minute ($e$(60 s) in the table), and $u_I$ then grows from 0 to
+  18.2 PWM at 30 °C and to 29.0 PWM at 35 °C (the steady commands $(T_{\mathrm{set}} -
+  T_{\mathrm{amb}})/\chi_h$ = 18.4 and 28.7 PWM) while $u_P$ decays to zero. The final
+  error is 0.00–0.05 °C.
+* **Slow correction, as designed.** Reaching ±0.1 °C takes 7–9 min. The model's slow
+  pole, $-0.0055$ s$^{-1}$ (time constant about 180 s), sets this pace, and the
+  measurement follows the model closely over the whole 40 min run.
+* **No overshoot.** The largest excursion past the final value is 0.08 °C, at the end
+  of the upward step.
+* **The downward step approaches from above.** After the step, $u_I$ still holds the
+  35 °C command, so $T$ stays above 30 °C until $q$ has unwound (−0.89 °C at 60 s). The
+  command stays almost entirely positive (down to −1 PWM): with $K_p$ = 6 the
+  proportional part does not overcome the stored $u_I$.
+
+#### Run 5: PI, $K_p$ = 6, $K_i$ = 0.08
+
+[`pi_20261018-072600_Kp6_Ki0.08_T30-35.csv`](../../data/module_06/pi_20261018-072600_Kp6_Ki0.08_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 21.26 °C. One-lump $\zeta_h$ = 1.19, $\zeta_c$ = 1.04;
+$K_i$ is just below $K_p/\tau$ = 0.086, where the PI zero cancels the slow pole
+(Part 6), so the one-lump model predicts a nearly first-order response without
+overshoot.
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e$(60 s) meas. / model (°C) | Overshoot (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 30.00 / 29.99 | +0.78 / +0.77 | 0.03 | 135 / 154 | +18 … +54 |
+| up | 35 | 35.00 / 34.98 | +0.52 / +0.41 | 0.01 | 119 / 91 | +29 … +49 |
+| down | 30 | 30.00 / 30.00 | −0.50 / −0.45 | 0.02 | 116 / 134 | −1 … +19 |
+
+![Run 5: PI control, K_p = 6, K_i = 0.08](../figures/module_06/part7_run5.png)
+
+* **Best PI compromise.** No droop (final error 0.00 °C), no overshoot (at most
+  0.03 °C), and both 5 °C steps reach ±0.1 °C in about 2 min: four times faster than
+  Run 4 (418–530 s) and only about 50 s slower than P-only Run 2, which left
+  1.8–2.9 °C of error.
+* **The model holds.** The measured trace follows the one-lump model within the noise;
+  the error 60 s after each step agrees to 0.1 °C. The settling times differ by up to
+  30 s in either direction because the trace approaches the ±0.1 °C band slowly and
+  nearly tangentially, so a few hundredths of a degree move the crossing.
+* **Thermal lag.** At $K_p$ = 6 the 1–2 s delay that made Run 3 ring has no visible
+  effect; the response is too slow for it to matter.
+
+#### Run 6: PI, $K_p$ = 6, $K_i$ = 0.5
+
+[`pi_20261018-083656_Kp6_Ki0.5_T30-35.csv`](../../data/module_06/pi_20261018-083656_Kp6_Ki0.5_T30-35.csv),
+baseline $T_{\mathrm{amb}}$ = 22.02 °C. One-lump $\zeta_h$ = 0.47, $\zeta_c$ = 0.41.
+(A first attempt was run with $K_i$ = 0.05 by mistake; it is kept as a debugging run.)
+
+| Step | $T_{\mathrm{set}}$ (°C) | $T_{\mathrm{ss}}$ meas. / model (°C) | $e$(60 s) meas. / model (°C) | Overshoot meas. / model (°C) | Settling meas. / model (s) | PWM sent |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| from room | 30 | 30.00 / 30.00 | −1.42 / −1.44 | 2.36 / 2.02 | 127 / 132 | +9 … +68 |
+| up | 35 | 35.00 / 35.03 | −0.92 / −0.89 | 1.48 / 1.25 | 122 / 130 | +22 … +60 |
+| down | 30 | 30.00 / 30.00 | +1.52 / +1.38 | 1.81 / 1.62 | 130 / 136 | −17 … +24 |
+
+![Run 6: PI control, K_p = 6, K_i = 0.5](../figures/module_06/part7_run6.png)
+
+* **Excess integral action.** The upward step peaks at 36.47 °C 42 s after the
+  switch, swings back to 34.75 °C at 99 s, and settles after one more small
+  oscillation (period about 115 s); the downward step dips to 28.21 °C at 51 s. The
+  final error is still zero, and the oscillation decays: as in Part 6, a large $K_i$
+  removes damping but the loop stays stable.
+* **This overshoot the one-lump model does predict.** Unlike Run 3, the overshoot here
+  comes from the PI zero and the low $\zeta$, so the one-lump PI model reproduces the
+  shape, timing, and size of the swings (1.25 and 1.62 °C). The measurement overshoots
+  0.2 °C more on each step, which is the thermal lag adding a little phase delay.
+* **Integral memory.** During the rise to 35 °C $u_I$ climbs to 49.5 PWM, almost twice
+  the 28.4 PWM that 35 °C needs, so the temperature has to overshoot until the negative
+  error has removed the excess (the integral-area argument of Part 6). The command
+  never reaches the 255 limit, so anti-windup never acts.
+* **Cooling side.** The downward step overshoots more (1.81 vs 1.48 °C) because
+  $\zeta_c$ = 0.41 is lower than $\zeta_h$ = 0.47.
+
+### Summary of the six runs
+
+`python/module6_part7_summary.py` overlays the matched steps of the six runs, each
+plotted against the time since its setpoint switch.
+
+![Six experimental Goldilocks runs, upward and downward steps](../figures/module_06/part7_goldilocks_summary.png)
+
+1. **P control leaves a droop that falls as $1/(1+L)$.** The upward-step error is
+   7.24, 2.89, and 0.85 °C for $L$ = 0.97, 3.88, and 15.5, within 0.08 °C of the
+   one-lump prediction in every case. Increasing $K_p$ also speeds up the response
+   (106 → 67 → 28 s on the upward step).
+2. **The one-lump model fails only at high gain.** Run 3 overshoots by 0.97 °C and
+   rings once, which the one-lump P model cannot do. The 1–2 s lag between the heat
+   input and the measured temperature, visible in every run, is enough to do this at
+   $L$ = 15.5. This is the evidence for the second thermal state (Part II).
+3. **PI control removes the droop for every $K_i > 0$.** The final error is 0.00–0.02 °C
+   in Runs 4–6, with $u_I$ holding the steady command (18–29 PWM) at $e = 0$.
+4. **$K_i$ trades speed for overshoot, as the one-lump PI model predicts.**
+   $K_i$ = 0.04 ($\zeta_h$ = 1.68) creeps to the setpoint in 7–9 min; $K_i$ = 0.08, just
+   below $K_p/\tau$, settles in about 2 min without overshoot; $K_i$ = 0.5
+   ($\zeta_h$ = 0.47) settles in a similar time but overshoots by 1.5–1.8 °C and rings.
+   Run 5 is the best PI compromise and the best of all six runs.
+5. **Heating and cooling differ.** The smaller $\chi_c$ lowers the loop gain while the
+   controller cools: the high-gain P step down rings less than the step up (Run 3), and
+   the PI step down, with the lower $\zeta_c$, overshoots more (Run 6).
