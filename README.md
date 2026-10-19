@@ -10,6 +10,7 @@ Part II compares one- and two-lump models with the course simulation.
 | `docs/module_notes/module_06_pi_control.md` | Module note, Part I (Parts 1–7) |
 | `docs/module_notes/module_06_part2_two_lump.md` | Module note, Part II (two-lump model and simulation) |
 | `python/module6_part2_lienhard_1_8.py` | Part II pre-class: Lienhard Problem 1.8 (lumped cooling of a copper sphere) |
+| `python/module6_part2_goldilocks.py` | Part II: the six two-lump simulation Goldilocks plots (course model, $G$ = 2 W/K, $C_T/C$ = 0.25), with measured vs simulated step metrics |
 | `python/module6_pi_control_gui.py` | Part 7 P/PI control GUI (from the Module 5 P-control GUI); logs to `data/module_06/` |
 | `python/module6_common.py` | Module 4 susceptibilities, $\tau$, one-lump PI damping ratio, run-file reader |
 | `python/module6_pi_gui_selftest.py` | Tests the GUI without hardware against a simulated one-lump Arduino |
@@ -28,6 +29,7 @@ pip install -r requirements.txt
 python python/module6_pi_gui_selftest.py             # check the P/PI GUI (no hardware)
 python python/module6_pi_control_gui.py              # P/PI runs (Module 6 sketch uploaded)
 python python/Lab_6_7_modeling_tec.py                # course simulation
+python python/module6_part2_goldilocks.py            # Part II six simulation plots
 python archive/python/module6_part6_ki_sweep.py      # e.g. regenerate a Part 6 figure
 ```
 

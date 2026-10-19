@@ -69,7 +69,12 @@ def step_metrics(t, T, t_step, t_end, T_start, rising):
     T_ss = float(Ts[ts >= ts[-1] - FINAL_S].mean())
     over = (Ts.max() - T_ss) if rising else (T_ss - Ts.min())
     outside = np.flatnonzero(abs(Ts - T_ss) > BAND_C)
-    t_settle = float(ts[outside[-1] + 1]) if len(outside) else 0.0
+    if len(outside) == 0:
+        t_settle = 0.0
+    elif outside[-1] + 1 < len(ts):
+        t_settle = float(ts[outside[-1] + 1])
+    else:                                   # still outside the band when the step ends
+        t_settle = float("nan")
     T_60 = float(np.interp(60.0, ts, Ts))
     return T_ss, max(float(over), 0.0), t_settle, float(ts[-1]), T_60
 
