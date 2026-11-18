@@ -1,0 +1,9 @@
+# LaTeX build files (keep A3.tex, A3.pdf, figures/)
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*Notes.bib
